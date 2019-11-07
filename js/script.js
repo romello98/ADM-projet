@@ -85,7 +85,7 @@ function commonSubArray(array1, array2)
     for(let i = 0; i < array1.length; i++)
     {
         let size;
-        let savedICellArray1 = i;
+        let savedI = i;
         let lowIndex = i;
 
         for(let j = 0; j < array2.length && array1[i] == array2[j]; j++)
@@ -98,7 +98,7 @@ function commonSubArray(array1, array2)
             highIndexWithMaxSize = i;
             lowIndexWithMaxSize = lowIndex;
         }
-        i = savedICellArray1;
+        i = savedI;
     }
 
     return array1.slice(lowIndexWithMaxSize, highIndexWithMaxSize);
