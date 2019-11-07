@@ -60,7 +60,9 @@ function primeFactorsDecomposition(integer)
         if (isDivisibleBy(integer, factor)) 
         {
             let isPrimeFactor = true;
-            for(let divisor = 2; isPrimeFactor && divisor <= factor / 2; divisor++) 
+            let maxFactor = Math.round(Math.sqrt(factor));
+            
+            for(let divisor = 2; isPrimeFactor && divisor <= maxFactor; divisor++) 
                 isPrimeFactor = !isDivisibleBy(factor, divisor);
             
             if(isPrimeFactor) 
@@ -69,7 +71,7 @@ function primeFactorsDecomposition(integer)
                     integer /= factor;
                     primeFactors.push(factor);
                 }
-        }   
+        }
     }
 
     return primeFactors;
