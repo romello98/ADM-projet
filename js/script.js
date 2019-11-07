@@ -80,8 +80,7 @@ function primeFactorsDecomposition(integer)
 /* Retourne le sous-tableau commun le plus long de <array1> et <array2> */
 function commonSubArray(array1, array2)
 {
-    let lowIndexWithMaxSize;
-    let highIndexWithMaxSize;
+    let lowIndexWithMaxSize, highIndexWithMaxSize;
     let maxSize = 0;
 
     for(let i = 0; i < array1.length; i++)
