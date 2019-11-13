@@ -26,25 +26,27 @@ input[type="number"] {
     width:100px;
     height: 2px;
     background: #ffa500;
-    margin: 0 auto;
+    margin: 30px auto 0 auto;
 }
 .heading 
 {
     text-align: center;
     margin-bottom: 60px;        
 }
-h2
+.heading h2
 {
     text-transform: uppercase;
     font-weight:bold;
     color: #fff;
 }
-.myContainer
+.divDisplay
 {
     font-size: 20px;
     background: #fff;
     padding: 40px;
     border-radius: 10px;
+    width: 90%;
+    margin: 0 auto;
 }
 /*---  NEW  ------*/
 .important
@@ -69,13 +71,6 @@ h2
     color: #d82c2e;
     height: 25px
 }
-#contact-form .thank-you
-{
-    text-align: center;
-    margin-top: 15px;
-    font-weight: bold;
-    font-size: 22px;
-}
 .button1
 {
     border: 1px solid #ddd;
@@ -98,10 +93,20 @@ h2
     margin-top: 50px;
 }
 
+.subtitle {
+    color: black;
+    text-align: center;
+    margin: 20px;
+    border: 1px solid black;
+}
 
+.green {
+    color: green;
+}
 
-
-
+.red {
+    color: red;
+}
 
 
 

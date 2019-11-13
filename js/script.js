@@ -1,18 +1,33 @@
 $(function () {
+
+	var perdiode;
+	var a;
+	var c;
+	var m;
+	var x0;
     
-    // JQuery edition
     $('#contact-form').submit(function(e) {
         e.preventDefault();
 
         if (document.getElementById('solution') == null) {
-            newRow = document.createElement('div');
-            newRow.classList.add('row');
-            divSolution = document.createElement('div');
-            divSolution.classList.add('col-lg-10', 'col-lg-offset-1', 'myContainer');
+            divContainer = document.createElement('div');
+            divContainer.classList.add('container');
+	        divDivider = document.createElement('div');
+	        divDivider.classList.add('divider');
+	        divHeading = document.createElement('div');
+	        divHeading.classList.add('heading');
+	        title = document.createElement('h2');
+	        title.innerHTML = 'Solution';
+	        divSolution = document.createElement('div');
+	        divSolution.classList.add('row', 'divDisplay');
             divSolution.id = "solution";
-            newRow.append(divSolution);
 
-            document.body.getElementsByClassName('container')[0].append(newRow);
+            divHeading.append(title);
+            divContainer.append(divDivider);
+            divContainer.append(divHeading);
+            divContainer.append(divSolution);
+
+            document.body.append(divContainer);
         }
 
         a = document.getElementById('a');
@@ -20,8 +35,10 @@ $(function () {
         m = document.getElementById('m');
         x0 = document.getElementById('x');
 
-        divSolution = document.getElementById('solution');
+		divSolution = document.getElementById('solution');
         divSolution.innerHTML = '';
+
+        // Affichage des valeurs envoyées
         mesValeurs = document.createElement('ul');
         mesValeurs.innerHTML = 'Valeurs de départ :';
         newLi = document.createElement('li');
@@ -37,6 +54,39 @@ $(function () {
         newLi.innerHTML = 'X0 = ' + x0.value;
         mesValeurs.append(newLi);
         divSolution.append(mesValeurs);
+
+        //Affichages de Hull-Dobell
+        divSubtitle = document.createElement('div');
+        divSubtitle.classList.add('subtitle');
+        subtitle = document.createElement('h3');
+        subtitle.innerHTML = 'Hull-Dobell';
+        divSubtitle.append(subtitle);
+        divSolution.append(divSubtitle);
+
+        divDobellQuestion = document.createElement('div');
+        divDobellQuestion.classList.add('col-md-8', 'text-left');
+        divDobellQuestion.innerHTML = 'C et M sont premier entre eux';
+        divDobellSolution = document.createElement('div');
+        divDobellSolution.classList.add('col-md-4', 'text-left');
+        divDobellSolution.innerHTML = (areCoPrime(c, m) ? "<span class='green'>Oui" : "<span class='red'>Non" ) + "</span>";
+        divSolution.append(divDobellQuestion);
+        divSolution.append(divDobellSolution);
+        divDobellQuestion = document.createElement('div');
+        divDobellQuestion.classList.add('col-md-8', 'text-left');
+        divDobellQuestion.innerHTML = 'Pour tout p, facteur premier de m, on a (a-1) multiple de p';
+        divDobellSolution = document.createElement('div');
+        divDobellSolution.classList.add('col-md-4', 'text-left');
+        divDobellSolution.innerHTML = 'TODO';
+        divSolution.append(divDobellQuestion);
+        divSolution.append(divDobellSolution);
+        divDobellQuestion = document.createElement('div');
+        divDobellQuestion.classList.add('col-md-8', 'text-left');
+        divDobellQuestion.innerHTML = 'Si m est multiple de 4, alors (a-1) est multiple de 4';
+        divDobellSolution = document.createElement('div');
+        divDobellSolution.classList.add('col-md-4', 'text-left');
+        divDobellSolution.innerHTML = 'TODO';
+        divSolution.append(divDobellQuestion);
+        divSolution.append(divDobellSolution);
     });
 
 })
