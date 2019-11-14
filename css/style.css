@@ -117,3 +117,7 @@ input[type="number"] {
     font-weight: bold;
     color: #0069d6;
 }
+
+.hidden {
+    visibility: hidden;
+}

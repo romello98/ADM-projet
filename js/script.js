@@ -8,98 +8,28 @@ $(function () {
     
     $('#contact-form').submit(function(e) {
         e.preventDefault();
-
-        if (document.getElementById('solution') == null) {
-            divContainer = document.createElement('div');
-            divContainer.classList.add('container');
-	        divDivider = document.createElement('div');
-	        divDivider.classList.add('divider');
-	        divHeading = document.createElement('div');
-	        divHeading.classList.add('heading');
-	        title = document.createElement('h2');
-	        title.innerHTML = 'Solution';
-	        divSolution = document.createElement('div');
-	        divSolution.classList.add('row', 'divDisplay');
-            divSolution.id = "solution";
-
-            divHeading.append(title);
-            divContainer.append(divDivider);
-            divContainer.append(divHeading);
-            divContainer.append(divSolution);
-
-            document.body.append(divContainer);
-        }
+        document.getElementById('solution').classList.remove('hidden');
 
         a = document.getElementById('a');
         c = document.getElementById('c');
         m = document.getElementById('m');
         x0 = document.getElementById('x');
 
-		divSolution = document.getElementById('solution');
-        divSolution.innerHTML = '';
+        document.getElementById('da').innerHTML = a.value;
+        document.getElementById('dc').innerHTML = c.value;
+        document.getElementById('dm').innerHTML = m.value;
+        document.getElementById('dx0').innerHTML = x0.value;
 
-        // Affichage des valeurs envoyées
-        mesValeurs = document.createElement('ul');
-        mesValeurs.innerHTML = 'Valeurs de départ :';
-        newLi = document.createElement('li');
-        newLi.innerHTML = '<span class="reponse">A :</span> ' + a.value;
-        mesValeurs.append(newLi);
-        newLi = document.createElement('li');
-        newLi.innerHTML = '<span class="reponse">C :</span> ' + c.value;
-        mesValeurs.append(newLi);
-        newLi = document.createElement('li');
-        newLi.innerHTML = '<span class="reponse">M :</span> ' + m.value;
-        mesValeurs.append(newLi);
-        newLi = document.createElement('li');
-        newLi.innerHTML = '<span class="reponse">X0 :</span> ' + x0.value;
-        mesValeurs.append(newLi);
-        divSolution.append(mesValeurs);
-
-        //Affichages de Hull-Dobell
-        divSubtitle = document.createElement('div');
-        divSubtitle.classList.add('subtitle');
-        subtitle = document.createElement('h3');
-        subtitle.innerHTML = 'Hull-Dobell';
-        divSubtitle.append(subtitle);
-        divSolution.append(divSubtitle);
-
-        divDobellQuestion = document.createElement('div');
-        divDobellQuestion.classList.add('col-md-8', 'text-left');
-        divDobellQuestion.innerHTML = 'C et M sont premier entre eux';
-        divDobellSolution = document.createElement('div');
-        divDobellSolution.classList.add('col-md-4', 'text-left');
         let verif1 = verification1(c.value, m.value);
-        divDobellSolution.innerHTML = (verif1 ? "<span class='green'>Oui" : "<span class='red'>Non" ) + "</span>";
-        divSolution.append(divDobellQuestion);
-        divSolution.append(divDobellSolution);
-        divDobellQuestion = document.createElement('div');
-        divDobellQuestion.classList.add('col-md-8', 'text-left');
-        divDobellQuestion.innerHTML = 'Pour tout p, facteur premier de m, on a (a-1) multiple de p';
-        divDobellSolution = document.createElement('div');
-        divDobellSolution.classList.add('col-md-4', 'text-left');
         let verif2 = verification2(a.value, m.value);
-        divDobellSolution.innerHTML = (verif2 ? "<span class='green'>Oui" : "<span class='red'>Non") + "</span>";
-        divSolution.append(divDobellQuestion);
-        divSolution.append(divDobellSolution);
-        divDobellQuestion = document.createElement('div');
-        divDobellQuestion.classList.add('col-md-8', 'text-left');
-        divDobellQuestion.innerHTML = 'Si m est multiple de 4, alors (a-1) est multiple de 4';
-        divDobellSolution = document.createElement('div');
-        divDobellSolution.classList.add('col-md-4', 'text-left');
         let verif3 = verification3(a.value, m.value);
-        divDobellSolution.innerHTML = (verif3 ? "<span class='green'>Oui" : "<span class='red'>Non") + "</span>";
-        divSolution.append(divDobellQuestion);
-        divSolution.append(divDobellSolution);
 
-        pIsValid = document.createElement('p');
-        pIsValid.classList.add('col-md-12', 'text-center', 'hull-dobell-reponse');
-        pIsValid.innerHTML = (verif1 && verif2 && verif3 ? "<span class='green'>La vérification de Hull-Dobell est valide." : "<span class='red'>La vérification de Hull-Dobell est invalide.") + "</span>";
-    	divSolution.append(pIsValid);
+        document.getElementById('hd-s1').innerHTML = (verif1 ? "<span class='green'>Oui" : "<span class='red'>Non" ) + "</span>";
+        document.getElementById('hd-s2').innerHTML = (verif2 ? "<span class='green'>Oui" : "<span class='red'>Non" ) + "</span>";
+        document.getElementById('hd-s3').innerHTML = (verif3 ? "<span class='green'>Oui" : "<span class='red'>Non" ) + "</span>";
 
-        pPeriod = document.createElement('p');
-        pPeriod.classList.add('col-md-12');
-        pPeriod.innerHTML = "<span class='reponse'>Période :</span> " + (verif1 && verif2 && verif3 ? m.value : "TODO");
-    	divSolution.append(pPeriod);
+        document.getElementById('hd-isValid').innerHTML = (verif1 && verif2 && verif3 ? "<span class='green'>La vérification de Hull-Dobell est valide." : "<span class='red'>La vérification de Hull-Dobell est invalide.") + "</span>";
+        document.getElementById('period').innerHTML = (verif1 && verif2 && verif3 ? m.value : "TODO");
     });
 
 })
@@ -212,4 +142,5 @@ function verification3(a, m) {
 	} else {
 		return true;
 	}
+	
 }

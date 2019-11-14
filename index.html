@@ -55,6 +55,33 @@
                 </div>
            </div>
         </div>
+       <div id="solution" class="container hidden">
+            <div class="divider"></div>
+            <div class="heading">
+                <h2>Solution</h2>
+            </div>
+                
+           <div class="row divDisplay">
+               <ul>Mes valeurs:
+               		<li><span class="reponse">A :</span> <span id="da"></span></li>
+               		<li><span class="reponse">C :</span> <span id="dc"></span></li>
+               		<li><span class="reponse">M :</span> <span id="dm"></span></li>
+               		<li><span class="reponse">X0 :</span> <span id="dx0"></span></li>
+               </ul>
+               <div class="subtitle">
+               		<h3>Hull-Dobell</h3>
+               </div>
+               <div class="col-md-8 text-left">C et M sont premier entre eux</div>
+               <div id="hd-s1" class="col-md-4 text-left"></div>
+               <div class="col-md-8 text-left">Pour tout p, facteur premier de m, on a (a-1) multiple de p</div>
+               <div id="hd-s2" class="col-md-4 text-left"></div>
+               <div class="col-md-8 text-left">Si m est multiple de 4, alors (a-1) est multiple de 4</div>
+               <div id="hd-s3" class="col-md-4 text-left"></div>
+
+               <p id="hd-isValid" class="col-md-12 text-center hull-dobell-reponse"></p>
+               <p class="col-md-12"><span class="reponse">Période :</span> <span id="period"></span></p>
+           </div>
+        </div>
     </body>
 
 </html>
