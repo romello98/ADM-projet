@@ -42,16 +42,16 @@ $(function () {
         mesValeurs = document.createElement('ul');
         mesValeurs.innerHTML = 'Valeurs de départ :';
         newLi = document.createElement('li');
-        newLi.innerHTML = 'A = ' + a.value;
+        newLi.innerHTML = '<span class="reponse">A :</span> ' + a.value;
         mesValeurs.append(newLi);
         newLi = document.createElement('li');
-        newLi.innerHTML = 'C = ' + c.value;
+        newLi.innerHTML = '<span class="reponse">C :</span> ' + c.value;
         mesValeurs.append(newLi);
         newLi = document.createElement('li');
-        newLi.innerHTML = 'M = ' + m.value;
+        newLi.innerHTML = '<span class="reponse">M :</span> ' + m.value;
         mesValeurs.append(newLi);
         newLi = document.createElement('li');
-        newLi.innerHTML = 'X0 = ' + x0.value;
+        newLi.innerHTML = '<span class="reponse">X0 :</span> ' + x0.value;
         mesValeurs.append(newLi);
         divSolution.append(mesValeurs);
 
@@ -68,7 +68,8 @@ $(function () {
         divDobellQuestion.innerHTML = 'C et M sont premier entre eux';
         divDobellSolution = document.createElement('div');
         divDobellSolution.classList.add('col-md-4', 'text-left');
-        divDobellSolution.innerHTML = (areCoPrime(c, m) ? "<span class='green'>Oui" : "<span class='red'>Non" ) + "</span>";
+        let verif1 = verification1(c.value, m.value);
+        divDobellSolution.innerHTML = (verif1 ? "<span class='green'>Oui" : "<span class='red'>Non" ) + "</span>";
         divSolution.append(divDobellQuestion);
         divSolution.append(divDobellSolution);
         divDobellQuestion = document.createElement('div');
@@ -76,7 +77,8 @@ $(function () {
         divDobellQuestion.innerHTML = 'Pour tout p, facteur premier de m, on a (a-1) multiple de p';
         divDobellSolution = document.createElement('div');
         divDobellSolution.classList.add('col-md-4', 'text-left');
-        divDobellSolution.innerHTML = 'TODO';
+        let verif2 = verification2(a.value, m.value);
+        divDobellSolution.innerHTML = (verif2 ? "<span class='green'>Oui" : "<span class='red'>Non") + "</span>";
         divSolution.append(divDobellQuestion);
         divSolution.append(divDobellSolution);
         divDobellQuestion = document.createElement('div');
@@ -84,9 +86,20 @@ $(function () {
         divDobellQuestion.innerHTML = 'Si m est multiple de 4, alors (a-1) est multiple de 4';
         divDobellSolution = document.createElement('div');
         divDobellSolution.classList.add('col-md-4', 'text-left');
-        divDobellSolution.innerHTML = 'TODO';
+        let verif3 = verification3(a.value, m.value);
+        divDobellSolution.innerHTML = (verif3 ? "<span class='green'>Oui" : "<span class='red'>Non") + "</span>";
         divSolution.append(divDobellQuestion);
         divSolution.append(divDobellSolution);
+
+        pIsValid = document.createElement('p');
+        pIsValid.classList.add('col-md-12', 'text-center', 'hull-dobell-reponse');
+        pIsValid.innerHTML = (verif1 && verif2 && verif3 ? "<span class='green'>La vérification de Hull-Dobell est valide." : "<span class='red'>La vérification de Hull-Dobell est invalide.") + "</span>";
+    	divSolution.append(pIsValid);
+
+        pPeriod = document.createElement('p');
+        pPeriod.classList.add('col-md-12');
+        pPeriod.innerHTML = "<span class='reponse'>Période :</span> " + (verif1 && verif2 && verif3 ? m.value : "TODO");
+    	divSolution.append(pPeriod);
     });
 
 })
@@ -97,7 +110,8 @@ function areCoPrime(integer1, integer2)
     let integer1PrimeFactors = primeFactorsDecomposition(integer1);
     let integer2PrimeFactors = primeFactorsDecomposition(integer2);
     let commonPrimeFactors = commonSubArray(integer1PrimeFactors, integer2PrimeFactors);
-    return commonPrimeFactors.length == 0;
+    return isValidUncommunNumber(integer1PrimeFactors, integer2PrimeFactors);
+    //return commonPrimeFactors.length == 0;
 }
 
 /* Retourne un tableau contenant les facteurs premiers de <integer> */
@@ -128,6 +142,7 @@ function primeFactorsDecomposition(integer)
 }
 
 /* Retourne le sous-tableau commun le plus long de <array1> et <array2> */
+//Ne fonctionne pas ??? renvoie des nombres qui ne sont pas commun (exemple: c = 6 et m = 35)
 function commonSubArray(array1, array2)
 {
     let lowIndexWithMaxSize, highIndexWithMaxSize;
@@ -155,8 +170,46 @@ function commonSubArray(array1, array2)
     return array1.slice(lowIndexWithMaxSize, highIndexWithMaxSize);
 }
 
+function isValidUncommunNumber(array1, array2)
+{
+    for(let i = 0; i < array1.length; i++)
+    {
+        for(let j = 0; j < array2.length; j++) {
+        	if (array1[i] == array2[j]) return false;
+        }
+    }
+
+    return true;
+}
+
 /* Détermine si <integer> est divisible par <divisor> */
 function isDivisibleBy(integer, divisor)
 {
     return integer % divisor == 0;
+}
+
+function isMMultiple(val) {
+	return val % 4 == 0;
+}
+
+function verification1(c, m) {
+	return areCoPrime(c, m);
+}
+
+function verification2(a, m) {
+	let p = primeFactorsDecomposition(m);
+
+	for (let i = 0; i < p.length; i++) {
+		if ((a-1) % p[i] != 0) return false;
+	}
+
+	return true;
+}
+
+function verification3(a, m) {
+	if (isMMultiple(m)) {
+		return (a-1) % 4 == 0;
+	} else {
+		return true;
+	}
 }
