@@ -1,0 +1,101 @@
+---* Partie 2
+tailleMaxPrioritaire = 5
+tempsSimulation = 600
+coutClientPrioritaire = 40
+coutClientOrdinaire = 25
+coutHeureOccupation = 35
+coutHeureInnocupation = 20
+coutClientPrioDevientOrdinaire = 50
+probClientPrioritaire = 0.3
+lambdaGenerationClient = 1.8
+coutMin = HV
+nbStationIdeal = NULL
+
+iStation = nbStationMin
+do while (iStation <= nbStationMax)
+filePrioritaire = 0
+fileOrdinaire = 0
+cumPrioritaire = 0
+cumOrdinaire = 0
+nbCumMinOccupe = 0
+nbCumMinInnocupe = 0
+nbTransitionPrioOrdinaire = 0
+nbHeurePresenceOrdinaire = 0
+
+module(Init;tabDuréeService;tabDuréeService)
+t = 1
+
+do while (t <= tempsSimulation)
+doitAfficherInfos = t <= 20
+module(Générer Arrivees;;filePrioritaire, fileOrdinaire, nombreArrivee)
+
+if (doitAfficherInfos)
+sortir nombreArrivee
+
+
+module(Sortir Stations;;)
+module(Sortir Files;;)
+endif
+
+module(Répartir Files;filePrioritaire, fileOrdinaire, nombreArrivee;filePrioritaire, fileOrdinaire)
+
+i = 0
+do while (i <= iStation)
+if (tabDuréeService[i] = 0)
+if (i = 0)
+if (filePrioritaire != 0)
+filePrioritaire--
+module(Générer Durée;;duréeGénérée)
+tabClientsSontPrio[i] = true
+
+tabDuréeService[i]--
+endif
+else
+if (fileOrdinaire != 0)
+fileOrdinaire--
+module(Générer Durée;;duréeGénérée)
+tabClientsSontPrio[i] = false
+else
+if (filePrioritaire != 0)
+filePrioritaire--
+module(Générer Durée;;duréeGénérée)
+tabClientsSontPrio[i] = true
+endif
+endif
+tabDuréeService[i]--
+endif
+else
+tabDuréeService[i]--
+endif
+
+i++
+enddo
+
+t++
+enddo
+
+coutEstimeOccupe = (nbCumMinOccupe / 60) * coutHeureOccupation
+coutEstimeInnoccupe = (nbCumMinInnoccupe / 60) * coutHeureInnoccupation
+coutEstimeCLientPrioOrdinaire = (nbClientPrioOrdinaire * coutClientPrioDevientOrdinaire)
+coutEstimePresenceSysPrio = (nbHeurePresencePrio * coutClientPrioritaire)
+coutEstimePresenceSysOrdinaire = (nbHeurePresenceOrdinaire * coutClientOrdinaire)
+
+coutEstime = coutEstimeOccupe + coutEstimeInnoccupe + coutEstimeCLientPrioOrdinaire 
+             + coutEstimePresenceSysPrio + coutEstimePresenceSysOrdinaire
+
+if (coutEstime < coutMin)
+coutMin = coutEstime
+nbStationIdeal = iStation
+endif
+
+iStation++
+enddo
+------
+
+---* Répartir Files
+// Gérer le cas de génération si il est prioritaire ou ordinaire
+------
+
+// Définir les valeurs de calcul de cout
+// Modules
+// Afficher pour les 20 minutes
