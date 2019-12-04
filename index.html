@@ -26,22 +26,22 @@
                         <div class="row">
                             <div class="col-md-3">
                                 <label for="a">a<span class="important"> *</span></label>
-                                <input id="a" type="number" name="a" class="form-control" placeholder="24" min="1" required>
+                                <input id="a" type="number" name="a" class="form-control" placeholder="24" value="24" min="1" required>
                                 <p class="comments"></p>
                             </div>
                             <div class="col-md-3">
                                 <label for="c">c<span class="important"> *</span></label>
-                                <input id="c" type="number" name="c" class="form-control" placeholder="42" min="1" required>
+                                <input id="c" type="number" name="c" class="form-control" placeholder="42" value="42" min="1" required>
                                 <p class="comments"></p>
                             </div>
                             <div class="col-md-3">
                                 <label for="m">m<span class="important"> *</span></label>
-                                <input id="m" type="number" name="m" class="form-control" placeholder="23" min="1" required>
+                                <input id="m" type="number" name="m" class="form-control" placeholder="23" value="23" min="1" required>
                                 <p class="comments"></p>
                             </div>
                             <div class="col-md-3">
                                 <label for="x">x0<span class="important"> *</span></label>
-                                <input id="x" type="number" name="x" class="form-control" placeholder="96" min="1" required>
+                                <input id="x" type="number" name="x" class="form-control" placeholder="96" value="96" min="1" required>
                                 <p class="comments"></p>
                             </div>
                             <div class="col-md-12">
@@ -60,8 +60,9 @@
             <div class="heading">
                 <h2>Solution</h2>
             </div>
-                
-           <div class="row divDisplay">
+            
+            <div class="row divDisplay">
+              <div id="partie1">
                <ul>Mes valeurs:
                		<li><span class="reponse">A :</span> <span id="da"></span></li>
                		<li><span class="reponse">C :</span> <span id="dc"></span></li>
@@ -79,7 +80,21 @@
                <div id="hd-s3" class="col-md-4 text-left"></div>
 
                <p id="hd-isValid" class="col-md-12 text-center hull-dobell-reponse"></p>
-               <p class="col-md-12"><span class="reponse">Période :</span> <span id="period"></span></p>
+               <div><p class="col-md-12"><span class="reponse">Période :</span> <span id="period"></span></p></div>
+              </div>
+
+              <div id="partie2" style="clear:both;">
+
+               <div class="subtitle">
+                  <h3>Meilleure solution</h3>
+               </div>
+               <div id="best-solution"></div>
+
+               <div class="subtitle">
+                  <h3>Détails de la solution</h3>
+               </div>
+               <div id="time-solution"></div>
+              </div>            
            </div>
         </div>
     </body>

@@ -1,14 +1,32 @@
 $(function () {
 
-	var perdiode;
+	//Variable reçue
 	var a;
 	var c;
 	var m;
 	var x0;
+	//Partie 1
+	var periode;
+	//Partie 2
+	const tailleMaxPrioritaire = 5;
+	const tempsSimulation = 21;
+	const coutClientPrioritaire = 40;
+	const coutClientOrdinaire = 25;
+	const coutHeureOccupation = 35;
+	const coutHeureInnocupation = 20;
+	const coutClientPrioDevientOrdinaire = 50;
+	const probClientPrioritaire = 0.3;
+	const lambdaGenerationClient = 1.8;
+	const nbStationMin = 3;
+	const nbStationMax = 10;
+	var coutMin = 999999999;
+	var nbStationIdeal = null;
     
     $('#contact-form').submit(function(e) {
         e.preventDefault();
         document.getElementById('solution').classList.remove('hidden');
+
+        //Partie 1
 
         a = document.getElementById('a');
         c = document.getElementById('c');
@@ -30,6 +48,120 @@ $(function () {
 
         document.getElementById('hd-isValid').innerHTML = (verif1 && verif2 && verif3 ? "<span class='green'>La vérification de Hull-Dobell est valide." : "<span class='red'>La vérification de Hull-Dobell est invalide.") + "</span>";
         document.getElementById('period').innerHTML = (verif1 && verif2 && verif3 ? m.value : "TODO");
+
+        //Partie 2
+        let iStation = nbStationMin;
+		
+        while (iStation <= nbStationMax) {
+
+			let filePrioritaire = 0;
+			let fileOrdinaire = 0;
+			let cumPrioritaire = 0;
+			let cumOrdinaire = 0;
+			let nbCumMinOccupe = 0;
+			let nbCumMinInnocupe = 0;
+			let nbTransitionPrioOrdinaire = 0;
+			let nbHeurePresenceOrdinaire = 0;
+			let nbHeurePresencePrio = 0;
+
+			let dureeGeneree = 0;
+			let tabClientsSontPrio = [];
+			let tabDureeService = [];
+			let nombreArrivee = 0;
+
+
+        	tabDureeService = init(tabDureeService, iStation);
+        	let iTemps = 1;
+
+        	while (iTemps <= tempsSimulation) {
+        		let doitAfficherInfos = (iTemps <= 20 && iStation == nbStationMin);
+
+        		nombreArrivee = genererArrivee(lambdaGenerationClient);
+
+        		if (doitAfficherInfos) {
+			      	div = document.getElementById('time-solution');
+					title = document.createElement('h3');
+					title.innerHTML = "<span class=\"reponse\">Minute :</span> " + iTemps;
+					generate = document.createElement('h3');
+					generate.innerHTML = "<span class=\"reponse\">Nombre d'arrivée générée :</span> " + nombreArrivee;
+					div.append(title);
+					div.append(generate);
+
+					sortirStations(iStation, tabClientsSontPrio, tabDureeService);
+					sortirFiles(filePrioritaire, fileOrdinaire);
+				}
+
+				reponse = repartirFiles(filePrioritaire, fileOrdinaire, nombreArrivee, probClientPrioritaire, cumPrioritaire, cumOrdinaire, nbTransitionPrioOrdinaire);
+				filePrioritaire = reponse.filePrioritaire;
+				fileOrdinaire = reponse.fileOrdinaire;
+				cumPrioritaire = reponse.cumPrioritaire;
+				cumOrdinaire = reponse.cumOrdinaire;
+				nbTransitionPrioOrdinaire = reponse.nbTransitionPrioOrdinaire;
+
+				let i = 0;
+
+				while (i <= iStation) {
+					if (tabDureeService[i] == 0) {
+						filePrioritaireEstVide = (filePrioritaire == 0);
+						fileOrdinaireEstVide = (fileOrdinaire == 0);
+
+						if (i == 0) {
+							if (!filePrioritaireEstVide) {
+								nbCumMinOccupe++;
+								filePrioritaire--;
+								tabDureeService[i] = genererDuree();
+								tabClientsSontPrio[i] = true;
+								tabDureeService[i]--;
+							} else {
+								nbCumMinInnocupe++;
+							}
+						} else {
+							if (!fileOrdinaireEstVide) {
+								nbCumMinOccupe++;
+								fileOrdinaire--;
+								tabDureeService[i] = genererDuree();
+								tabClientsSontPrio[i] = false;
+							} else {
+								if (!filePrioritaireEstVide) {
+									nbCumMinOccupe++;
+									filePrioritaire--;
+									tabDureeService[i] = genererDuree();
+									tabClientsSontPrio[i] = true;							
+								} else {
+									nbCumMinInnocupe++;
+								}
+							}
+
+							tabDureeService[i]--;
+						}
+
+						tabDureeService[i]--;
+					}
+
+					i++;
+				}
+
+				iTemps++;
+        	}
+
+        	let coutEstimeOccupe = (nbCumMinOccupe / 60) * coutHeureOccupation;
+        	let coutEstimeInnoccupe = (nbCumMinInnocupe / 60) * coutHeureInnocupation;
+        	let coutEstimeClientPrioOrdinaire = (nbTransitionPrioOrdinaire * coutClientPrioDevientOrdinaire);
+        	let coutEstimePresenceSysPrio = (cumPrioritaire / 60) * coutClientPrioritaire;
+        	let coutEstimePresenceSysOrdinaraire = (cumOrdinaire / 60) * coutClientOrdinaire;
+
+        	let coutEstime = coutEstimeOccupe + coutEstimeInnoccupe + coutEstimeClientPrioOrdinaire + coutEstimePresenceSysPrio + coutEstimePresenceSysOrdinaraire;
+
+        	if (coutEstime < coutMin) {
+        		coutMin = coutEstime;
+        		nbStationIdeal = iStation;
+        	}
+
+        	iStation++;
+        }
+
+        document.getElementById('best-solution').innerHTML = "Nous vous conseillons un nombre de <strong>" + nbStationIdeal + "</strong> station pour un coût de " + coutMin + "€";
+
     });
 
 })
@@ -39,7 +171,7 @@ function areCoPrime(integer1, integer2)
 {
     let integer1PrimeFactors = primeFactorsDecomposition(integer1);
     let integer2PrimeFactors = primeFactorsDecomposition(integer2);
-    let commonPrimeFactors = commonSubArray(integer1PrimeFactors, integer2PrimeFactors);
+    //let commonPrimeFactors = commonSubArray(integer1PrimeFactors, integer2PrimeFactors);
     return isValidUncommunNumber(integer1PrimeFactors, integer2PrimeFactors);
     //return commonPrimeFactors.length == 0;
 }
@@ -141,6 +273,167 @@ function verification3(a, m) {
 		return (a-1) % 4 == 0;
 	} else {
 		return true;
+	}	
+}
+
+//partie 2
+
+function repartirFiles(filePrioritaire, fileOrdinaire, nombreArrivee, probClientPrioritaire, cumPrioritaire, cumOrdinaire, nbTransitionPrioOrdinaire) {
+
+	cumPrioritaire += filePrioritaire;
+	cumOrdinaire += fileOrdinaire;
+
+	while (nombreArrivee > 0) {
+		nbrAleatoire = Math.random();
+
+		if (nbrAleatoire < probClientPrioritaire) {
+			if (filePrioritaire < 5) {
+				filePrioritaire++;
+			} else {
+				fileOrdinaire++;
+				nbTransitionPrioOrdinaire++;
+			}
+		} else {
+			fileOrdinaire++;
+		}
+
+		nombreArrivee--;
 	}
-	
+
+	return {filePrioritaire : filePrioritaire, fileOrdinaire : fileOrdinaire, cumPrioritaire : cumPrioritaire, cumOrdinaire : cumOrdinaire, nbTransitionPrioOrdinaire : nbTransitionPrioOrdinaire };
+}
+
+function sortirStations(iStation, tabClientsSontPrio, tabDureeService) {
+	i = 0;
+
+	div = document.getElementById('time-solution');
+	table = document.createElement('table');
+	table.classList.add('table');
+	thead = document.createElement('thead');
+	tbody = document.createElement('tbody');
+	tr = document.createElement('tr');
+	thStation = document.createElement('th');
+	thStation.innerHTML = "Station";
+	thTypeClient = document.createElement('th');
+	thTypeClient.innerHTML = "Type de client";
+	thDureeRestante = document.createElement('th');
+	thDureeRestante.innerHTML = "Durée restante";
+
+	tr.append(thStation);
+	tr.append(thTypeClient);
+	tr.append(thDureeRestante);
+	thead.append(tr);
+	table.append(thead);
+
+	while (i < iStation) {
+		newTr = document.createElement('tr');
+		newTdStation = document.createElement('td');
+		newTdType = document.createElement('td');
+		newTdDuree = document.createElement('td');
+
+		newTdStation.innerHTML = i + 1;
+
+		if (tabClientsSontPrio[i] != null) {
+			if (tabClientsSontPrio[i]) {
+				newTdType.innerHTML = "Client prioritaire";
+			} else {
+				newTdType.innerHTML = "Client ordinaire";
+			}
+		} else {
+			newTdType.innerHTML = "/";
+		}
+
+		if (tabDureeService[i] != null) {
+			newTdDuree.innerHTML = tabDureeService[i];
+		}
+
+		newTr.append(newTdStation);
+		newTr.append(newTdType);
+		newTr.append(newTdDuree);
+		tbody.append(newTr);
+
+		i++;
+	}
+
+	table.append(tbody);
+	div.append(table);
+}
+
+function sortirFiles(filePrioritaire, fileOrdinaire) {
+	div = document.getElementById('time-solution');
+	table = document.createElement('table');
+	table.classList.add('table');
+	thead = document.createElement('thead');
+	tbody = document.createElement('tbody');
+	tr = document.createElement('tr');
+	thFilePrio = document.createElement('th');
+	thFilePrio.innerHTML = "File prioritaire";
+	thFileOrdi = document.createElement('th');
+	thFileOrdi.innerHTML = "File ordinaire";
+	newTr = document.createElement('tr');
+	newTdPrio = document.createElement('td');
+	newTdPrio.innerHTML = filePrioritaire + " clients";
+	newTdOrdi = document.createElement('td');
+	newTdOrdi = fileOrdinaire + " clients";
+
+	tr.append(thFilePrio);
+	tr.append(thFileOrdi);
+	thead.append(tr);
+	table.append(thead);
+
+	newTr.append(newTdPrio);
+	newTr.append(newTdOrdi);
+	tbody.append(newTr);
+	table.append(tbody);
+	div.append(table);
+}
+
+function init(tabDureeService, iStation) {
+	i = 0;
+
+	while (i < iStation) {
+		tabDureeService[i] = 0;
+		i++;
+	}
+
+	return tabDureeService;
+}
+
+function genererArrivee(lambdaGenerationClient) {
+	let nbrAleatoire = Math.random();
+
+	let k = 0;
+	while (nbrAleatoire >= 0) {
+		nbrAleatoire -= (Math.pow(lambdaGenerationClient, k) * Math.pow(Math.E, -lambdaGenerationClient)) / factorielle(k);
+
+		if (nbrAleatoire >= 0) {
+			k++;
+		}
+	}
+
+	return k;
+}
+
+function factorielle(n)
+{
+	if (n == 0) {
+		return 1;
+	} else {
+		return n * factorielle (n-1);
+	}
+} 
+
+function genererDuree() {
+	nbrAleatoire = Math.random();
+
+	tablePoids = [18, 21, 15, 3, 1, 1];
+	nbrAleatoire = nbrAleatoire * 59;
+	indice = 0;
+
+	while (nbrAleatoire >= 0) {
+		nbrAleatoire -= tablePoids[indice];
+		indice++;
+	}
+
+	return indice;
 }
