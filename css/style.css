@@ -121,3 +121,11 @@ input[type="number"] {
 .hidden {
     visibility: hidden;
 }
+
+#best-solution table {
+    margin: 30px auto;
+}
+
+#best-solution table tr:last-of-type {
+    font-weight: bold;
+}
