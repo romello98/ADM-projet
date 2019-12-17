@@ -1,10 +1,15 @@
-$(function () {
 
-	//Variable reçue
-	var a;
-	var c;
-	var m;
-	var x0;
+//Variable reçue
+a = 65;
+c = 57;
+M = 32768;
+x0 = 356;
+index = 0;
+
+NOMBRES_ALEATOIRES = [];
+genererNombresAleatoires(x0, a, c, M);
+
+$(function () {
 	//Partie 1
 	var periode;
 	//Partie 2
@@ -19,6 +24,7 @@ $(function () {
 	const lambdaGenerationClient = 1.8;
 	const nbStationMin = 2;
 	const nbStationMax = 10;
+
 	var coutMin;
 	var nbStationIdeal;
     
@@ -301,7 +307,7 @@ function repartirFiles(filePrioritaire, fileOrdinaire, nombreArrivee, probClient
 	let nouvelleArriveePrio = 0;
 	let nouvelleArriveeOrdi = 0;
 	while (nombreArrivee > 0) {
-		nbrAleatoire = Math.random();
+		nbrAleatoire = random();
 
 		if (nbrAleatoire < probClientPrioritaire) {
 			nouvelleArriveePrio++;
@@ -420,7 +426,7 @@ function init(tabDureeService, iStation) {
 }
 
 function genererArrivee(lambdaGenerationClient) {
-	let nbrAleatoire = Math.random();
+	let nbrAleatoire = random();
 
 	let k = 0;
 	while (nbrAleatoire >= 0) {
@@ -439,10 +445,26 @@ function factorielle(n)
 	} else {
 		return n * factorielle (n-1);
 	}
-} 
+}
+
+function genererNombresAleatoires(x0, a, c, m)
+{
+	let xi = x0;
+	for(let i = 0; i < m; i++) 
+	{ 
+		xi = NOMBRES_ALEATOIRES[i] = (a * xi + c) % m;
+	}
+}
+
+function random()
+{
+	let nb = NOMBRES_ALEATOIRES[index] / M;
+	index = (index + 1) % M;
+	return nb;
+}
 
 function genererDuree() {
-	nbrAleatoire = Math.random();
+	nbrAleatoire = random();
 
 	tablePoids = [18, 21, 15, 3, 1, 1];
 	nbrAleatoire = nbrAleatoire * 59;
