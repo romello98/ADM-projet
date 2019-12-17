@@ -9,7 +9,7 @@ $(function () {
 	var periode;
 	//Partie 2
 	const tailleMaxPrioritaire = 5;
-	const tempsSimulation = 21;
+	const tempsSimulation = 600;
 	const coutClientPrioritaire = 40;
 	const coutClientOrdinaire = 25;
 	const coutHeureOccupation = 35;
@@ -17,10 +17,10 @@ $(function () {
 	const coutClientPrioDevientOrdinaire = 50;
 	const probClientPrioritaire = 0.3;
 	const lambdaGenerationClient = 1.8;
-	const nbStationMin = 3;
+	const nbStationMin = 2;
 	const nbStationMax = 10;
-	var coutMin = 999999999;
-	var nbStationIdeal = null;
+	var coutMin;
+	var nbStationIdeal;
     
     $('#contact-form').submit(function(e) {
         e.preventDefault();
@@ -50,6 +50,10 @@ $(function () {
         document.getElementById('period').innerHTML = (verif1 && verif2 && verif3 ? m.value : "TODO");
 
         //Partie 2
+        document.getElementById('best-solution').innerHTML = "";
+        document.getElementById('time-solution').innerHTML = "";
+        coutMin = Infinity;
+        nbStationIdeal = null;
         let iStation = nbStationMin;
 		
         while (iStation <= nbStationMax) {
@@ -61,8 +65,6 @@ $(function () {
 			let nbCumMinOccupe = 0;
 			let nbCumMinInnocupe = 0;
 			let nbTransitionPrioOrdinaire = 0;
-			let nbHeurePresenceOrdinaire = 0;
-			let nbHeurePresencePrio = 0;
 
 			let dureeGeneree = 0;
 			let tabClientsSontPrio = [];
@@ -74,22 +76,12 @@ $(function () {
         	let iTemps = 1;
 
         	while (iTemps <= tempsSimulation) {
-        		let doitAfficherInfos = (iTemps <= 20 && iStation == nbStationMin);
+        		var nouvelleArriveePrio = 0;
+        		var nouvelleArriveeOrdi = 0;
+
+        		let doitAfficherInfos = (iTemps <= 20 && (iStation == nbStationMin || iStation == 5));
 
         		nombreArrivee = genererArrivee(lambdaGenerationClient);
-
-        		if (doitAfficherInfos) {
-			      	div = document.getElementById('time-solution');
-					title = document.createElement('h3');
-					title.innerHTML = "<span class=\"reponse\">Minute :</span> " + iTemps;
-					generate = document.createElement('h3');
-					generate.innerHTML = "<span class=\"reponse\">Nombre d'arrivée générée :</span> " + nombreArrivee;
-					div.append(title);
-					div.append(generate);
-
-					sortirStations(iStation, tabClientsSontPrio, tabDureeService);
-					sortirFiles(filePrioritaire, fileOrdinaire);
-				}
 
 				reponse = repartirFiles(filePrioritaire, fileOrdinaire, nombreArrivee, probClientPrioritaire, cumPrioritaire, cumOrdinaire, nbTransitionPrioOrdinaire);
 				filePrioritaire = reponse.filePrioritaire;
@@ -97,13 +89,28 @@ $(function () {
 				cumPrioritaire = reponse.cumPrioritaire;
 				cumOrdinaire = reponse.cumOrdinaire;
 				nbTransitionPrioOrdinaire = reponse.nbTransitionPrioOrdinaire;
+				nouvelleArriveePrio = reponse.nouvelleArriveePrio;
+				nouvelleArriveeOrdi = reponse.nouvelleArriveeOrdi;
+
+        		if (doitAfficherInfos) {
+			      	div = document.getElementById('time-solution');
+					title = document.createElement('h3');
+					title.innerHTML = "<span class=\"reponse\">Minute :</span> " + iTemps;
+					generate = document.createElement('h3');
+					generate.innerHTML = "<span class=\"reponse\">Nombre d'arrivée générée :</span> " + nombreArrivee + " (Prio : " + nouvelleArriveePrio + ", Ordi : " + nouvelleArriveeOrdi + ")";
+					div.append(title);
+					div.append(generate);
+
+					sortirStations(iStation, tabClientsSontPrio, tabDureeService);
+					sortirFiles(filePrioritaire, fileOrdinaire);
+				}
 
 				let i = 0;
 
 				while (i <= iStation) {
-					if (tabDureeService[i] == 0) {
-						filePrioritaireEstVide = (filePrioritaire == 0);
-						fileOrdinaireEstVide = (fileOrdinaire == 0);
+					if (tabDureeService[i] <= 0) {
+						filePrioritaireEstVide = (filePrioritaire <= 0);
+						fileOrdinaireEstVide = (fileOrdinaire <= 0);
 
 						if (i == 0) {
 							if (!filePrioritaireEstVide) {
@@ -111,8 +118,8 @@ $(function () {
 								filePrioritaire--;
 								tabDureeService[i] = genererDuree();
 								tabClientsSontPrio[i] = true;
-								tabDureeService[i]--;
 							} else {
+								tabClientsSontPrio[i] = null;
 								nbCumMinInnocupe++;
 							}
 						} else {
@@ -128,15 +135,23 @@ $(function () {
 									tabDureeService[i] = genererDuree();
 									tabClientsSontPrio[i] = true;							
 								} else {
+									tabClientsSontPrio[i] = null;
 									nbCumMinInnocupe++;
 								}
 							}
 
-							tabDureeService[i]--;
 						}
 
-						tabDureeService[i]--;
+					} else {
+						nbCumMinOccupe++;
+						if(tabClientsSontPrio[i]){
+							cumPrioritaire++;
+						}else{
+							cumOrdinaire++;
+						}
 					}
+
+					tabDureeService[i]--;
 
 					i++;
 				}
@@ -283,10 +298,14 @@ function repartirFiles(filePrioritaire, fileOrdinaire, nombreArrivee, probClient
 	cumPrioritaire += filePrioritaire;
 	cumOrdinaire += fileOrdinaire;
 
+	let nouvelleArriveePrio = 0;
+	let nouvelleArriveeOrdi = 0;
 	while (nombreArrivee > 0) {
 		nbrAleatoire = Math.random();
 
 		if (nbrAleatoire < probClientPrioritaire) {
+			nouvelleArriveePrio++;
+
 			if (filePrioritaire < 5) {
 				filePrioritaire++;
 			} else {
@@ -295,12 +314,13 @@ function repartirFiles(filePrioritaire, fileOrdinaire, nombreArrivee, probClient
 			}
 		} else {
 			fileOrdinaire++;
+			nouvelleArriveeOrdi++;
 		}
 
 		nombreArrivee--;
 	}
 
-	return {filePrioritaire : filePrioritaire, fileOrdinaire : fileOrdinaire, cumPrioritaire : cumPrioritaire, cumOrdinaire : cumOrdinaire, nbTransitionPrioOrdinaire : nbTransitionPrioOrdinaire };
+	return {filePrioritaire : filePrioritaire, fileOrdinaire : fileOrdinaire, cumPrioritaire : cumPrioritaire, cumOrdinaire : cumOrdinaire, nbTransitionPrioOrdinaire : nbTransitionPrioOrdinaire, nouvelleArriveeOrdi : nouvelleArriveeOrdi, nouvelleArriveePrio : nouvelleArriveePrio};
 }
 
 function sortirStations(iStation, tabClientsSontPrio, tabDureeService) {
@@ -406,12 +426,10 @@ function genererArrivee(lambdaGenerationClient) {
 	while (nbrAleatoire >= 0) {
 		nbrAleatoire -= (Math.pow(lambdaGenerationClient, k) * Math.pow(Math.E, -lambdaGenerationClient)) / factorielle(k);
 
-		if (nbrAleatoire >= 0) {
-			k++;
-		}
+		k++;
 	}
 
-	return k;
+	return k - 1;
 }
 
 function factorielle(n)
