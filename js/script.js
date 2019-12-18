@@ -6,6 +6,7 @@ m = 32768;
 x0 = 356;
 index = 0;
 let periode;
+const tablePoids = [18, 21, 15, 3, 1, 1];
 
 NOMBRES_ALEATOIRES = [];
 
@@ -20,8 +21,10 @@ $(function () {
     inputM.value = m;
     inputX0.value = x0;
 
+
 	//Partie 1
 	//Partie 2
+
 	const tailleMaxPrioritaire = 5;
 	const tempsSimulation = 600;
 	const coutClientPrioritaire = 40;
@@ -33,6 +36,9 @@ $(function () {
 	const lambdaGenerationClient = 1.8;
 	const nbStationMin = 2;
 	const nbStationMax = 10;
+
+	let nbStationMinEquilibre = lambdaGenerationClient * tablePoids.reduce((acc, curr, index) => acc + curr * (index + 1)) / 59.;
+	console.log("Nombre de stations minimum pour une situation d'équilibre : " + nbStationMinEquilibre);
 
 	var nbStationIdeal;
     
