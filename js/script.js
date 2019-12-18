@@ -2,14 +2,24 @@
 //Variable reçue
 a = 65;
 c = 57;
-M = 32768;
+m = 32768;
 x0 = 356;
 index = 0;
 
 NOMBRES_ALEATOIRES = [];
-genererNombresAleatoires(x0, a, c, M);
+genererNombresAleatoires(x0, a, c, m);
 
 $(function () {
+    inputA = document.getElementById('a');
+    inputC = document.getElementById('c');
+    inputM = document.getElementById('m');
+    inputX0 = document.getElementById('x');
+
+    inputA.value = a;
+    inputC.value = c;
+    inputM.value = m;
+    inputX0.value = x0;
+
 	//Partie 1
 	var periode;
 	//Partie 2
@@ -25,7 +35,6 @@ $(function () {
 	const nbStationMin = 2;
 	const nbStationMax = 10;
 
-	var coutMin;
 	var nbStationIdeal;
     
     $('#contact-form').submit(function(e) {
@@ -34,35 +43,32 @@ $(function () {
 
         //Partie 1
 
-        a = document.getElementById('a');
-        c = document.getElementById('c');
-        m = document.getElementById('m');
-        x0 = document.getElementById('x');
+        document.getElementById('da').innerHTML = a;
+        document.getElementById('dc').innerHTML = c;
+        document.getElementById('dm').innerHTML = m;
+        document.getElementById('dx0').innerHTML = x0;
 
-        document.getElementById('da').innerHTML = a.value;
-        document.getElementById('dc').innerHTML = c.value;
-        document.getElementById('dm').innerHTML = m.value;
-        document.getElementById('dx0').innerHTML = x0.value;
-
-        let verif1 = verification1(c.value, m.value);
-        let verif2 = verification2(a.value, m.value);
-        let verif3 = verification3(a.value, m.value);
+        let verif1 = verification1(c, m);
+        let verif2 = verification2(a, m);
+        let verif3 = verification3(a, m);
 
         document.getElementById('hd-s1').innerHTML = (verif1 ? "<span class='green'>Oui" : "<span class='red'>Non" ) + "</span>";
         document.getElementById('hd-s2').innerHTML = (verif2 ? "<span class='green'>Oui" : "<span class='red'>Non" ) + "</span>";
         document.getElementById('hd-s3').innerHTML = (verif3 ? "<span class='green'>Oui" : "<span class='red'>Non" ) + "</span>";
 
         document.getElementById('hd-isValid').innerHTML = (verif1 && verif2 && verif3 ? "<span class='green'>La vérification de Hull-Dobell est valide." : "<span class='red'>La vérification de Hull-Dobell est invalide.") + "</span>";
-        document.getElementById('period').innerHTML = (verif1 && verif2 && verif3 ? m.value : "TODO");
+        document.getElementById('period').innerHTML = (verif1 && verif2 && verif3 ? m : "TODO");
 
         //Partie 2
         document.getElementById('best-solution').innerHTML = "";
         document.getElementById('time-solution').innerHTML = "";
-        coutMin = Infinity;
+        coutMin = { total: Infinity };
         nbStationIdeal = null;
         let iStation = nbStationMin;
 		
         while (iStation <= nbStationMax) {
+
+        	index = 0;
 
 			let filePrioritaire = 0;
 			let fileOrdinaire = 0;
@@ -103,7 +109,7 @@ $(function () {
 					title = document.createElement('h3');
 					title.innerHTML = "<span class=\"reponse\">Minute :</span> " + iTemps;
 					generate = document.createElement('h3');
-					generate.innerHTML = "<span class=\"reponse\">Nombre d'arrivée générée :</span> " + nombreArrivee + " (Prio : " + nouvelleArriveePrio + ", Ordi : " + nouvelleArriveeOrdi + ")";
+					generate.innerHTML = "<span class=\"reponse\">Nombre d'arrivées générées :</span> " + nombreArrivee + " (Prio : " + nouvelleArriveePrio + ", Ordi : " + nouvelleArriveeOrdi + ")";
 					div.append(title);
 					div.append(generate);
 
@@ -170,22 +176,44 @@ $(function () {
         	let coutEstimeClientPrioOrdinaire = (nbTransitionPrioOrdinaire * coutClientPrioDevientOrdinaire);
         	let coutEstimePresenceSysPrio = (cumPrioritaire / 60) * coutClientPrioritaire;
         	let coutEstimePresenceSysOrdinaraire = (cumOrdinaire / 60) * coutClientOrdinaire;
+        	let couts = 
+        	{
+        		total: coutEstimeOccupe + coutEstimeInnoccupe + coutEstimeClientPrioOrdinaire + coutEstimePresenceSysPrio + coutEstimePresenceSysOrdinaraire,
+        		occupation: coutEstimeOccupe,
+        		inoccupation: coutEstimeInnoccupe,
+        		transferts: coutEstimeClientPrioOrdinaire,
+        		presencePrio: coutEstimePresenceSysPrio,
+        		presenceOrdi: coutEstimePresenceSysOrdinaraire
+        	};
 
-        	let coutEstime = coutEstimeOccupe + coutEstimeInnoccupe + coutEstimeClientPrioOrdinaire + coutEstimePresenceSysPrio + coutEstimePresenceSysOrdinaraire;
-
-        	if (coutEstime < coutMin) {
-        		coutMin = coutEstime;
+        	if (couts.total < coutMin.total) {
+        		coutMin = couts;
         		nbStationIdeal = iStation;
         	}
 
         	iStation++;
         }
 
-        document.getElementById('best-solution').innerHTML = "Nous vous conseillons un nombre de <strong>" + nbStationIdeal + "</strong> station pour un coût de " + coutMin + "€";
+        sortirCouts(coutMin, nbStationIdeal);													
 
     });
 
 })
+
+function sortirCouts(couts, nbStationIdeal)
+{
+	couts = Object.fromEntries(Object.entries(couts).map((entry) => [entry[0], entry[1].toFixed(2)] ));
+	document.getElementById('best-solution').innerHTML = "Nous vous conseillons un nombre de <strong>" + nbStationIdeal + "</strong> station(s) pour un coût de " + coutMin.total.toFixed(2) + "€"
+														+"<table>"
+														+"<tr><th>Type</th><th>Montant</th></tr>"
+														+`<tr><td>Occupation des stations : </td><td>${couts.occupation} €</td></tr>`
+														+`<tr><td>Inoccupation des stations : </td><td>${couts.inoccupation} €</td></tr>`
+														+`<tr><td>Transferts de prioritaires : </td><td>${couts.transferts} €</td></tr>`
+														+`<tr><td>Présence système prioritaires : </td><td>${couts.presencePrio} €</td></tr>`
+														+`<tr><td>Présence système ordinaires : </td><td>${couts.presenceOrdi} €</td></tr>`
+														+`<tr><td>Total : </td><td>${couts.total} €</td></tr>`;
+        
+}
 
 /* Détermine si deux entiers <integer1> et <integer2> sont premiers */
 function areCoPrime(integer1, integer2)
@@ -458,8 +486,8 @@ function genererNombresAleatoires(x0, a, c, m)
 
 function random()
 {
-	let nb = NOMBRES_ALEATOIRES[index] / M;
-	index = (index + 1) % M;
+	let nb = NOMBRES_ALEATOIRES[index] / m;
+	index = (index + 1) % m;
 	return nb;
 }
 
