@@ -5,9 +5,9 @@ c = 57;
 m = 32768;
 x0 = 356;
 index = 0;
+let periode;
 
 NOMBRES_ALEATOIRES = [];
-genererNombresAleatoires(x0, a, c, m);
 
 $(function () {
     inputA = document.getElementById('a');
@@ -21,7 +21,6 @@ $(function () {
     inputX0.value = x0;
 
 	//Partie 1
-	var periode;
 	//Partie 2
 	const tailleMaxPrioritaire = 5;
 	const tempsSimulation = 600;
@@ -43,21 +42,28 @@ $(function () {
 
         //Partie 1
 
-        document.getElementById('da').innerHTML = a;
-        document.getElementById('dc').innerHTML = c;
-        document.getElementById('dm').innerHTML = m;
-        document.getElementById('dx0').innerHTML = x0;
+        genererNombresAleatoires(Number(inputX0.value), Number(inputA.value), Number(inputC.value), Number(inputM.value));
+		periode = Number(inputM.value);
 
-        let verif1 = verification1(c, m);
-        let verif2 = verification2(a, m);
-        let verif3 = verification3(a, m);
+        document.getElementById('da').innerHTML = inputA.value;
+        document.getElementById('dc').innerHTML = inputC.value;
+        document.getElementById('dm').innerHTML = inputM.value;
+        document.getElementById('dx0').innerHTML = inputX0.value;
+
+        let verif1 = verification1(inputC.value, inputM.value);
+        let verif2 = verification2(inputA.value, inputM.value);
+        let verif3 = verification3(inputA.value, inputM.value);
+        let hullDobellValid = verif1 && verif2 && verif3;
+
+        if(!hullDobellValid) periode = calculPeriode(NOMBRES_ALEATOIRES);
 
         document.getElementById('hd-s1').innerHTML = (verif1 ? "<span class='green'>Oui" : "<span class='red'>Non" ) + "</span>";
         document.getElementById('hd-s2').innerHTML = (verif2 ? "<span class='green'>Oui" : "<span class='red'>Non" ) + "</span>";
         document.getElementById('hd-s3').innerHTML = (verif3 ? "<span class='green'>Oui" : "<span class='red'>Non" ) + "</span>";
 
-        document.getElementById('hd-isValid').innerHTML = (verif1 && verif2 && verif3 ? "<span class='green'>La vérification de Hull-Dobell est valide." : "<span class='red'>La vérification de Hull-Dobell est invalide.") + "</span>";
-        document.getElementById('period').innerHTML = (verif1 && verif2 && verif3 ? m : "TODO");
+        document.getElementById('hd-isValid').innerHTML = (hullDobellValid ? "<span class='green'>La vérification de Hull-Dobell est valide." : "<span class='red'>La vérification de Hull-Dobell est invalide.") + "</span>";
+        document.getElementById('period').innerHTML = periode + "";
+
 
         //Partie 2
         document.getElementById('best-solution').innerHTML = "";
@@ -325,6 +331,21 @@ function verification3(a, m) {
 	}	
 }
 
+
+function calculPeriode(tab)
+{
+	let tabTrouve = [];
+
+	for(let i = 0; i < tab.length; i++)
+	{
+		if(tabTrouve.indexOf(tab[i]) !== -1)
+			return i - tabTrouve.indexOf(tab[i]);
+		tabTrouve.push(tab[i]);		    
+	}
+
+	return -1;
+}
+
 //partie 2
 
 function repartirFiles(filePrioritaire, fileOrdinaire, nombreArrivee, probClientPrioritaire, cumPrioritaire, cumOrdinaire, nbTransitionPrioOrdinaire) {
@@ -478,7 +499,8 @@ function factorielle(n)
 function genererNombresAleatoires(x0, a, c, m)
 {
 	let xi = x0;
-	for(let i = 0; i < m; i++) 
+	NOMBRES_ALEATOIRES[0] = Number(x0);
+	for(let i = 1; i < m; i++) 
 	{ 
 		xi = NOMBRES_ALEATOIRES[i] = (a * xi + c) % m;
 	}
@@ -487,7 +509,7 @@ function genererNombresAleatoires(x0, a, c, m)
 function random()
 {
 	let nb = NOMBRES_ALEATOIRES[index] / m;
-	index = (index + 1) % m;
+	index = (index + 1) % periode;
 	return nb;
 }
 
