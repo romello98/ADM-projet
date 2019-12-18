@@ -6,7 +6,7 @@ m = 32768;
 x0 = 356;
 index = 0;
 let periode;
-const tablePoids = [18, 21, 15, 3, 1, 1];
+tablePoids = [18, 21, 15, 3, 1, 1];
 
 NOMBRES_ALEATOIRES = [];
 
@@ -200,7 +200,7 @@ $(function () {
 
         	if (couts.total < coutMin.total) {
         		coutMin = couts;
-        		nbStationIdeal = iStation;
+        		nbStationIdeal = iStation + 1;
         	}
 
         	iStation++;
